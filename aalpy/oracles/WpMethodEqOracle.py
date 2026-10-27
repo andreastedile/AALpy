@@ -46,7 +46,7 @@ def second_phase_it(hyp, alphabet, difference, depth):
     Args:
         hyp: hypothesis automaton
         alphabet: input alphabet
-        difference: set of sequences that are in the transition cover but not in the state cover
+        difference: list of sequences that are in the transition cover but not in the state cover
         depth: maximum length of middle part
     """
     state_mapping = {}
@@ -77,14 +77,15 @@ class WpMethodEqOracle(Oracle):
         if not hypothesis.characterization_set:
             hypothesis.characterization_set = hypothesis.compute_characterization_set()
 
-        transition_cover = set(
+        transition_cover = list(dict.fromkeys(
             state.prefix + (letter,)
             for state in hypothesis.states
             for letter in self.alphabet
-        )
+        ))
 
-        state_cover = set(state.prefix for state in hypothesis.states)
-        difference = transition_cover.difference(state_cover)
+        state_cover = list(dict.fromkeys(state.prefix for state in hypothesis.states))
+        state_cover_set = set(state_cover)
+        difference = [prefix for prefix in transition_cover if prefix not in state_cover_set]
         depth = self.m + 1 - len(hypothesis.states)
         # first phase State Cover * Middle * Characterization Set
         first_phase = first_phase_it(self.alphabet, state_cover, depth, hypothesis.characterization_set)
